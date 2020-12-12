@@ -1,0 +1,62 @@
+import java.io.*;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+
+public class MyClass {
+    public static void main(String args[]) throws IOException, InterruptedException {
+      var url = "https://samples.openweathermap.org/data/2.5/forecast/hourly?q=London,us&appid=b6907d289e10d714a6e88b30761fae22";
+      System.out.println("API URL: " + url);
+      
+      var request = HttpRequest.newBuilder().GET().uri(URI.create(url)).build();
+      var client = HttpClient.newBuilder().build();
+      var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+      System.out.println("Response: " + response);
+
+     //Query1
+     getMaxTemp(response);
+
+     //Query2
+     getDetailsByDate(1554004800, response);
+
+     //Query3
+     getList(response);	
+    }
+
+  public static String getMaxTemp(var response) {
+	return response.getString("temp_max");
+  }
+
+ public static TempDetails getDetailsByDate(long dateLong, var response) {
+	TempDetails details = new TempDetails();
+
+	if(response.getString("dt").equalIgnoreCase(dateLong)) {
+		details.setTempMin(response.getString("temp_min"));
+		details.setTempMax(response.getString("temp_max"));
+		details.setHumidity(response.getString("humidity"));
+		details.setMainUnderWeather(response.getString("main"));
+	}
+
+	return details;
+ }
+
+public static List getList(var response) {
+	List list = new ArrayList<>();
+
+	if(response.getString("main").equalIgnoreCase("Rain")) {
+		list.add(new Date(response.getString("dt")));
+		
+	}
+
+	return list;
+ }
+	
+}
+
+class TempDetails {
+private String tempMin;
+private String tempMax;
+private String humidity;
+private String mainUnderWeather;
+}
